@@ -9,10 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +32,7 @@ public class EmployeeApiController {
     public ResponseEntity<Object> AddEmployee(@RequestBody Employee employee, @RequestParam("branchId") long branchId) {
 
         employee.setBranchIdEmployeee(branchId);
-        if (String.valueOf(employee.getNationalId()).length() < 16) {
+        if (String.valueOf(employee.getNationalId()).length() < 16&&String.valueOf(employee.getNationalId()).length()>16) {
 
 
             return new ResponseEntity<Object>("The National Id Should be 16 Digits", HttpStatus.BAD_REQUEST);
@@ -43,8 +40,15 @@ public class EmployeeApiController {
         }
 
         final Pattern arabicLettersPattern = Pattern.compile("[\\u0600-\\u06FF\\u0750-\\u077F]",
+
                 Pattern.UNICODE_CASE | Pattern.CANON_EQ | Pattern.CASE_INSENSITIVE);
-        final Matcher arabicLettersMatcher = arabicLettersPattern.matcher(employee.getName());
+         Matcher arabicLettersMatcher = null;
+
+
+
+
+
+            arabicLettersMatcher=   arabicLettersPattern.matcher(employee.getName());
         if (!arabicLettersMatcher.find()) {
             return new ResponseEntity<Object>("Only Arabic name Allowed", HttpStatus.BAD_REQUEST);
 
@@ -53,8 +57,9 @@ public class EmployeeApiController {
         employee.setNationalId(employee.getNationalId());
         employee.setName(employee.getName());
         crudEmployeeService.addEmployee(employee);
-
-        return new ResponseEntity<Object>("USER ADDED SUCCEFULLY", HttpStatus.ACCEPTED);
+Map<String,String> values=new HashMap<>();
+values.put("value","USER ADDED SUCCEFULLY");
+        return new ResponseEntity<Object>(values, HttpStatus.OK);
     }
 
     @RequestMapping("/getemployees")
